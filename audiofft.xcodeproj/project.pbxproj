@@ -14,6 +14,7 @@
 		1696A59D2AB901B4005CE285 /* audiofftTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1696A59C2AB901B4005CE285 /* audiofftTests.swift */; };
 		1696A5A72AB901B4005CE285 /* audiofftUITests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1696A5A62AB901B4005CE285 /* audiofftUITests.swift */; };
 		1696A5A92AB901B4005CE285 /* audiofftUITestsLaunchTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1696A5A82AB901B4005CE285 /* audiofftUITestsLaunchTests.swift */; };
+		1696A5B62AB90341005CE285 /* AudioManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1696A5B52AB90341005CE285 /* AudioManager.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -44,6 +45,7 @@
 		1696A5A22AB901B4005CE285 /* audiofftUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = audiofftUITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		1696A5A62AB901B4005CE285 /* audiofftUITests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = audiofftUITests.swift; sourceTree = "<group>"; };
 		1696A5A82AB901B4005CE285 /* audiofftUITestsLaunchTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = audiofftUITestsLaunchTests.swift; sourceTree = "<group>"; };
+		1696A5B52AB90341005CE285 /* AudioManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AudioManager.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -96,6 +98,7 @@
 			children = (
 				1696A58B2AB901B3005CE285 /* audiofftApp.swift */,
 				1696A58D2AB901B3005CE285 /* ContentView.swift */,
+				1696A5B52AB90341005CE285 /* AudioManager.swift */,
 				1696A58F2AB901B4005CE285 /* Assets.xcassets */,
 				1696A5912AB901B4005CE285 /* Preview Content */,
 			);
@@ -257,6 +260,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				1696A5B62AB90341005CE285 /* AudioManager.swift in Sources */,
 				1696A58E2AB901B3005CE285 /* ContentView.swift in Sources */,
 				1696A58C2AB901B3005CE285 /* audiofftApp.swift in Sources */,
 			);
@@ -420,6 +424,7 @@
 				DEVELOPMENT_TEAM = U8R8SJMHQ5;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_KEY_NSMicrophoneUsageDescription = "Need Mics";
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
@@ -449,6 +454,7 @@
 				DEVELOPMENT_TEAM = U8R8SJMHQ5;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_KEY_NSMicrophoneUsageDescription = "Need Mics";
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
