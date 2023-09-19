@@ -9,12 +9,40 @@ import SwiftUI
 import AVFoundation
 import Accelerate
 
+class dspSplitComplexHolder{
+    var realp: [Float]
+    var imagp: [Float]
+    let realPtr: UnsafeMutablePointer<Float>
+    let imagPtr: UnsafeMutablePointer<Float>
+    var complexValue: DSPSplitComplex
+    
+    init(length: Int) {
+        realp = Array(repeating: 0.0, count: length)
+        imagp = Array(repeating: 0.0, count: length)
+        realPtr = UnsafeMutablePointer<Float>.allocate(capacity: length)
+        imagPtr = UnsafeMutablePointer<Float>.allocate(capacity: length)
+        realPtr.initialize(from: realp, count: length)
+        imagPtr.initialize(from: imagp, count: length)
+        complexValue = DSPSplitComplex(realp: realPtr, imagp: imagPtr)
+    }
+    
+    deinit {
+        realPtr.deallocate()
+        imagPtr.deallocate()
+    }
+}
+
 class AudioEngineManager: ObservableObject {
     var audioEngine = AVAudioEngine()
     var fftSetup: FFTSetup!
     let fftLength = vDSP_Length(4096)
-    let log2n: vDSP_Length = 12
+    
+    var fftInstance = vDSP.FFT(log2n: 12, radix: .radix2, ofType: DSPSplitComplex.self)
     var output: [Float] = Array(repeating: 0.0, count: 2048)  // half fftLength
+    
+    var inputComplex: dspSplitComplexHolder = dspSplitComplexHolder(length: 4096)
+    var outputComplex: dspSplitComplexHolder = dspSplitComplexHolder(length: 4096)
+    
     @Published var outputLog: [Float] = Array(repeating: 0.0, count: 2048)  // half fftLength
     init() {
         setupEngine()
@@ -24,32 +52,19 @@ class AudioEngineManager: ObservableObject {
     func setupEngine() {
         let inputNode = audioEngine.inputNode
         let inputFormat = inputNode.outputFormat(forBus: 0)
-        
-        fftSetup = vDSP_create_fftsetup(log2n, FFTRadix(kFFTRadix2))
-        var realp: [Float] = Array(repeating: 0.0, count: 2048)
-        var imagp: [Float] = Array(repeating: 0.0, count: 2048)
-        let realPtr = UnsafeMutablePointer<Float>.allocate(capacity: 2048)
-        let imagPtr = UnsafeMutablePointer<Float>.allocate(capacity: 2048)
-        realPtr.initialize(from: &realp, count: 2048)
-        imagPtr.initialize(from: &imagp, count: 2048)
+//        fftSetup = vDSP_create_fftsetup(log2n, FFTRadix(kFFTRadix2))
         
         inputNode.installTap(onBus: 0, bufferSize: UInt32(fftLength), format: inputFormat) { [unowned self] buffer, _ in
-            
-            var tempOutput = DSPSplitComplex(realp: realPtr, imagp: imagPtr)
-            
             guard let floatData = buffer.floatChannelData?[0] else {return }
-            let length = vDSP_Length(buffer.frameLength)
+//            let length = vDSP_Length(buffer.frameLength)
             
-            floatData.withMemoryRebound(to: DSPComplex.self, capacity: Int(length)) { dspComplexBuffer in
-                vDSP_ctoz(dspComplexBuffer, 2, &tempOutput, 1, vDSP_Length(2048))
-            }
-            
-            vDSP_fft_zrip(self.fftSetup, &tempOutput, 1, self.log2n, FFTDirection(FFT_FORWARD))
-            
-            vDSP_zvmags(&tempOutput, 1, &self.output, 1, vDSP_Length(2048))
-            
-            DispatchQueue.main.async {
-                self.outputLog = self.output.map { 10 * log10($0) }
+            vDSP_mmov(floatData, inputComplex.realPtr, vDSP_Length(buffer.frameLength), 1, 1, vDSP_Length(buffer.frameLength))
+            DispatchQueue.global(qos: .default).async { [unowned self] in
+                fftInstance?.transform(input: inputComplex.complexValue, output: &outputComplex.complexValue, direction: .forward)
+                vDSP.squareMagnitudes(outputComplex.complexValue, result: &self.output)
+                DispatchQueue.main.async { [unowned self] in
+                    vDSP.convert(amplitude: self.output, toDecibels: &self.outputLog, zeroReference: 1.0)
+                }
             }
         }
 

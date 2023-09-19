@@ -12,8 +12,8 @@ struct ContentView: View {
         VStack {
             Spacer()
             FFTView()
-                .frame(height: 300)
-        Text("OK")
+                .frame(height: 350)
+            Text("OK")
             Spacer()
         }
         .padding()
@@ -24,18 +24,29 @@ struct FFTView: View {
     @ObservedObject var audioManager = AudioEngineManager()
     
     var body: some View {
-        GeometryReader { geometry in
-            Path { path in
-                let width = geometry.size.width / CGFloat(audioManager.output.count)
-                
-                for (index, value) in audioManager.outputLog.enumerated() {
-                    let height = CGFloat(value) * geometry.size.height / 100.0  // Adjust as per your needs
-                    path.move(to: CGPoint(x: CGFloat(index) * width, y: geometry.size.height))
-                    path.addLine(to: CGPoint(x: CGFloat(index) * width, y: geometry.size.height - height))
+        VStack {
+            GeometryReader { geometry in
+                Path { path in
+                    let width = geometry.size.width / CGFloat(audioManager.output.count / 2 - 512) // Dividing by 2 to only use half
+                    
+                    // Initialize the starting point for the path
+                    if let firstValue = audioManager.outputLog.first {
+                        let height = CGFloat(firstValue) * geometry.size.height / 250.0
+                        path.move(to: CGPoint(x: 0, y: geometry.size.height - height - 150))
+                    }
+                    
+                    // Looping only over the first half
+                    for (index, value) in audioManager.outputLog.prefix(audioManager.output.count / 2 - 512).enumerated() {
+                        let height = CGFloat(value) * geometry.size.height / 250.0  // Adjust as per your needs
+                        path.addLine(to: CGPoint(x: CGFloat(index) * width, y: geometry.size.height - height - 150))
+                    }
                 }
+                .stroke(Color.blue)
             }
-            .stroke(Color.blue)
-        }.drawingGroup()
+            .clipped()
+            .drawingGroup()
+        }
+
     }
 }
 
